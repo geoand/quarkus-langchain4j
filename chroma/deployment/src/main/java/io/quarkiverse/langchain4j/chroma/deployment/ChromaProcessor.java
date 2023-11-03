@@ -1,6 +1,6 @@
 package io.quarkiverse.langchain4j.chroma.deployment;
 
-import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Singleton;
 
 import org.jboss.jandex.DotName;
 
@@ -36,7 +36,7 @@ class ChromaProcessor {
                 .defaultBean()
                 .setRuntimeInit()
                 .defaultBean()
-                .scope(ApplicationScoped.class)
+                .scope(Singleton.class)
                 .supplier(recorder.chromaStoreSupplier(config))
                 .done());
     }
