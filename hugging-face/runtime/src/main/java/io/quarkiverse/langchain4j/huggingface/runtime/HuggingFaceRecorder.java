@@ -14,17 +14,21 @@ import io.smallrye.config.ConfigValidationException;
 public class HuggingFaceRecorder {
     public Supplier<?> chatModel(Langchain4jHuggingFaceConfig runtimeConfig) {
         Optional<String> apiKeyOpt = runtimeConfig.apiKey();
-        if (apiKeyOpt.isEmpty()) {
+        Optional<String> baseUrlOpt = runtimeConfig.baseUrl();
+        if (apiKeyOpt.isEmpty() && baseUrlOpt.isEmpty()) { // when using the default base URL an API key is required
             throw new ConfigValidationException(createApiKeyConfigProblems());
         }
         ChatModelConfig chatModelConfig = runtimeConfig.chatModel();
         var builder = HuggingFaceChatModel.builder()
-                .accessToken(apiKeyOpt.get())
                 .timeout(runtimeConfig.timeout())
                 .modelId(chatModelConfig.modelId())
                 .temperature(chatModelConfig.temperature())
                 .returnFullText(chatModelConfig.returnFullText())
                 .waitForModel(chatModelConfig.waitForModel());
+
+        if (apiKeyOpt.isPresent()) {
+            builder.accessToken(apiKeyOpt.get());
+        }
 
         if (chatModelConfig.maxNewTokens().isPresent()) {
             builder.maxNewTokens(chatModelConfig.maxNewTokens().get());
